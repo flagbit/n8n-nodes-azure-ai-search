@@ -1,17 +1,17 @@
-# n8n-nodes-opensearch
+# n8n-nodes-azure-ai-search
 
-This is an n8n community node. It lets you use OpenSearch in your n8n workflows.
+This is an n8n community node. It lets you use Azure AI Search in your n8n workflows.
 
-The [OpenSearch](https://opensearch.org/) project, created by Amazon, is a forked search project based on old versions of Elasticsearch and Kibana.
+[Azure AI Search](https://learn.microsoft.com/en-us/azure/search/) (formerly Azure Cognitive Search) is Microsoft's cloud search service with built-in AI capabilities.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
 [Installation](#installation)  
 [Operations](#operations)  
-[Credentials](#credentials)  <!-- delete if no auth needed -->  
+[Credentials](#credentials)  
 [Compatibility](#compatibility)  
 [Resources](#resources)  
-[Version history](#version-history)  <!-- delete if not using this section -->  
+[Version history](#version-history)  
 
 ## Installation
 
@@ -19,30 +19,17 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-**Document Actions**
+**Vector Store Operations**
 
- - Create a document
- - Delete a document
- - Get a document
- - Get many documents
- - Update a document
-
-**Index Actions**
-
-- Create an index
-- Delete an index
-- Get an index
-- Get many indices
-
-**OpenSearch Vector Store**
-
-- Retrieve
-- Insert
-- Get Many
+Azure AI Search Vector Store:
+- Retrieve (similarity search with metadata filtering)
+- Insert (add documents with embeddings)
 
 ## Credentials
 
-You will need a baseURL and a username and password to authenticate to the OpenSearch service.
+**Azure AI Search:**
+- Endpoint URL
+- API Key
 
 ## Compatibility
 
@@ -51,10 +38,10 @@ Supports n8n 1.48.0+, tested with 1.62.1
 ## Resources
 
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
-* [OpenSearch Langchain documentation](https://js.langchain.com/docs/integrations/vectorstores/opensearch/)
+* [Azure AI Search Vector Search documentation](https://learn.microsoft.com/en-us/azure/search/vector-search-overview)
 
 ## Version history
 
-0.1.0 - First working version, no documentation
+0.2.0 - Added Azure AI Search Vector Store support
 
 
