@@ -22,6 +22,73 @@ export function getMetadataFiltersValues(
 	return undefined;
 }
 
+/**
+ * Converts metadata filters to Azure AI Search OData filter format
+ * @param ctx The execution context
+ * @param itemIndex The current item index
+ * @returns Azure AI Search filter object with filterExpression and vectorFilterMode
+ */
+export function getAzureAISearchFilters(
+	ctx: IExecuteFunctions,
+	itemIndex: number,
+): { filterExpression?: string; vectorFilterMode?: 'preFilter' | 'postFilter' } | undefined {
+	// Check which filter mode is selected
+	const filterMode = ctx.getNodeParameter('filterMode', itemIndex, 'metadata') as string;
+
+	if (filterMode === 'custom') {
+		// Use custom OData filter expression
+		const customFilter = ctx.getNodeParameter('customFilter', itemIndex, '') as string;
+
+		if (!customFilter.trim()) {
+			return undefined;
+		}
+
+		return {
+			filterExpression: customFilter.trim(),
+			vectorFilterMode: 'preFilter', // Use preFilter for better performance
+		};
+	}
+
+	// Default to metadata mode - use key-value pairs
+	const metadata = ctx.getNodeParameter('options.metadata.metadataValues', itemIndex, []) as Array<{
+		name: string;
+		value: string;
+	}>;
+
+	if (metadata.length === 0) {
+		return undefined;
+	}
+
+	// Check if any value contains OData syntax - if so, treat it as a complete filter expression
+	const oDataSyntaxPattern = /\b(eq|ne|lt|le|gt|ge|and|or|any|all)\b|\/|metadata\//i;
+	const directFilterEntry = metadata.find(({ value }) => oDataSyntaxPattern.test(value));
+
+	if (directFilterEntry) {
+		// If we found a value that looks like an OData expression, use it directly
+		return {
+			filterExpression: directFilterEntry.value.trim(),
+			vectorFilterMode: 'preFilter',
+		};
+	}
+
+	// Convert metadata filters to Azure AI Search OData filter expression
+	// Azure AI Search stores metadata in the attributes collection as key-value pairs
+	const filterExpressions = metadata.map(({ name, value }) => {
+		// Escape single quotes in the value
+		const escapedValue = value.replace(/'/g, "''");
+		// Use the attributes collection path for Azure AI Search
+		// The attributes field is a Collection(Edm.ComplexType) with 'key' and 'value' fields
+		return `metadata/attributes/any(attr: attr/key eq '${name}' and attr/value eq '${escapedValue}')`;
+	});
+
+	const filterExpression = filterExpressions.join(' and ');
+
+	return {
+		filterExpression,
+		vectorFilterMode: 'preFilter', // Use preFilter for better performance
+	};
+}
+
 export function isChatInstance(model: unknown): model is BaseChatModel {
 	const namespace = (model as BaseLLM | BaseChatModel)?.lc_namespace ?? [];
 
